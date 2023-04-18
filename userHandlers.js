@@ -63,7 +63,7 @@ const postUsers = (req, res) => {
         })
         .catch((err) => {
             console.error(err);
-            res.status(500).send("Error saving the movie");
+            res.status(500).send("Error saving the user");
         });
 }
 
@@ -81,7 +81,24 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
         console.error(err)
-        res.status(500).send("Error editing the movie")
+        res.status(500).send("Error editing the user")
+    })
+}
+
+const deleteUser = (req, res) => {
+    const {id} = req.params
+    
+    database.query("DELETE from users WHERE id = ?", [req.params.id])
+    .then(([user]) => {
+        if (user.affectedRows === 0) {
+            res.status(400).send("Not Found")
+        } else {
+            res.sendStatus(204)
+        }
+    })
+    .catch((err) => {
+        console.error(err)
+        res.status(500).send("Error deleting the user")
     })
 }
 
@@ -91,4 +108,5 @@ module.exports = {
     getUsersById,
     postUsers,
     updateUser,
+    deleteUser,
 };
