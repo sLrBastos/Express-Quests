@@ -5,8 +5,22 @@ const getAllMovies = (req, res) => {
 
   //* check if filter exists
   let query = "SELECT * FROM movies"
+  const queryValues = []
 
+  if (req.query.color != null) {
+    query += " WHERE color = ?"
+    queryValues.push(req.query.color)
+    
+    if (req.query.max_duration != null) {
+      query += " AND duration <= ?"
+      queryValues.push(req.query.max_duration)
+    } 
+  } else if (req.query.max_duration != null) {
+    query += " WHERE duration <= ?"
+    queryValues.push(req.query.max_duration)
+  }
   
+
   if (req.query.title != null) {
       query += ` WHERE title LIKE '%${req.query.title}%'`
   }
@@ -19,7 +33,7 @@ const getAllMovies = (req, res) => {
   }
 
   console.log(query)
-  database.query(query)
+  database.query(query, queryValues)
   .then(([movies]) => {
       if (movies !== null && movies.length > 0) {
           res.status(200).json(movies)

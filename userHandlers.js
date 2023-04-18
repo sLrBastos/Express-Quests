@@ -12,11 +12,38 @@
 const database = require("./database");
 
 const getUsers = (req, res) => {
+
+    let query = "SELECT * from users"
+    const queryUserValues = []
+
+    if (req.query.language != null) {
+        query += ` WHERE language LIKE '%${req.query.language}%'`
+        queryUserValues.push(req.query.language)
+
+        if (req.query.city != null) {
+            query += ` AND city LIKE '%${req.query.city}%'`
+            queryUserValues.push(req.query.city)
+        }
+    } else if (req.query.city != null) {
+        query +=  ` WHERE city LIKE '%${req.query.city}%'`
+        queryUserValues.push(req.query.city)
+
+    }
+
+
+
+
+
+
+
     database
-        .query("select * from users")
+        .query(query, queryUserValues)
         .then(([users]) => {
-        
+             if (users !== null && users.length > 0) {
             res.json(users)
+        } else {
+            res.status(404).send("Not Found")
+        }
         })
         .catch((err) => {
             console.error(err);
