@@ -11,7 +11,7 @@ const hashPassword = (req, res, next) => {
   argon2
     .hash(req.body.password, hashingOptions)
     .then((hashedPassword) => {
-      console.log(hashedPassword);
+      console.log(req.body.password);
 
       req.body.hashedPassword = hashedPassword;
       delete req.body.password;
@@ -20,7 +20,7 @@ const hashPassword = (req, res, next) => {
     })
     .catch((err) => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500).send("Error with the middleware");
     });
 };
 

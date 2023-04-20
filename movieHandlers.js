@@ -1,4 +1,3 @@
-
 const database = require("./database");
 
 const getAllMovies = (req, res) => {
@@ -32,7 +31,6 @@ const getAllMovies = (req, res) => {
       }
   }
 
-  console.log(query)
   database.query(query, queryValues)
   .then(([movies]) => {
       if (movies !== null && movies.length > 0) {

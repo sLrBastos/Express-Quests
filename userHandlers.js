@@ -1,19 +1,9 @@
-// const users = [
-//    {
-//     'John',
-//     'Doe',
-//     'john.doe@example.com',
-//     'Paris',
-//     'English'
-//    } 
-// ]
-
 
 const database = require("./database");
 
 const getUsers = (req, res) => {
 
-    let query = "SELECT * from users"
+    let query = " SELECT id, firstname, lastname, email, city, language FROM users"
     const queryUserValues = []
 
     if (req.query.language != null) {
@@ -29,12 +19,6 @@ const getUsers = (req, res) => {
         queryUserValues.push(req.query.city)
 
     }
-
-
-
-
-
-
 
     database
         .query(query, queryUserValues)
@@ -55,7 +39,7 @@ const getUsersById = (req, res) => {
     const {id} = req.params
 
     database
-        .query(`select * from users where id = ${parseInt(id)}`)
+        .query(` SELECT id, firstname, lastname, email, city, language FROM users where id = ${parseInt(id)}`)
         .then(([users]) => {
             console.log(users)
             if (users[0] !== null && users.length > 0) {
@@ -73,7 +57,7 @@ const getUsersById = (req, res) => {
 
 const postUsers = (req, res) => {
     // const {firstname, lastname, email, city, language} = req.body
-
+    console.log(req.body)
     database
         .query(
         //     "INSERT INTO users(firstname, lastname, email, city, language) VALUES (?, ?, ? ,?, ?)",
@@ -97,7 +81,7 @@ const postUsers = (req, res) => {
 const updateUser = (req, res) => {
     const {id} = req.params
 
-    database.query("UPDATE users set? WHERE id = ?", [req.body, req.params.id]
+    database.query("UPDATE users set? WHERE id = ?", [req.body, id]
     )
     .then(([user]) => {
         if (user.affectedRows === 0) {
@@ -115,7 +99,7 @@ const updateUser = (req, res) => {
 const deleteUser = (req, res) => {
     const {id} = req.params
     
-    database.query("DELETE from users WHERE id = ?", [req.params.id])
+    database.query("DELETE from users WHERE id = ?", id)
     .then(([user]) => {
         if (user.affectedRows === 0) {
             res.status(400).send("Not Found")
