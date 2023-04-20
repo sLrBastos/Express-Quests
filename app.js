@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const { hashPassword } = require("./auth.js");
 
 const app = express();
 
@@ -16,17 +15,33 @@ app.get("/", welcome);
 
 const movieHandlers = require("./movieHandlers");
 const userHandlers = require("./userHandlers")
+const { hashPassword, verifyPassword, verifyToken } = require("./auth")
 
+
+//* Public Routes
 app.get("/api/movies", movieHandlers.getAllMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
 app.get("/api/users", userHandlers.getUsers)
 app.get("/api/users/:id", userHandlers.getUsersById)
-app.post("/api/movies", movieHandlers.createMovie)
 app.post("/api/users", hashPassword, userHandlers.postUsers)
-app.put("/api/movies/:id", movieHandlers.updateMovie);
-app.put("/api/users/:id", hashPassword, userHandlers.updateUser)
-app.delete("/api/movies/:id", movieHandlers.deleteMovie)
-app.delete("/api/users/:id", userHandlers.deleteUser)
+
+app.post("/api/login", userHandlers.getUserByEmailWithPasswordAndPassToNext, verifyPassword)
+
+
+//* Routes to protect
+
+// app.use(verifyToken); //authentication wall
+
+
+app.post("/api/movies", verifyToken, movieHandlers.createMovie)
+
+app.put("/api/movies/:id", verifyToken, movieHandlers.updateMovie);
+app.put("/api/users/:id", verifyToken, hashPassword, userHandlers.updateUser)
+app.delete("/api/movies/:id",verifyToken, movieHandlers.deleteMovie)
+app.delete("/api/users/:id", verifyToken, userHandlers.deleteUser)
+
+
+
 
 app.listen(port, (err) => {
   if (err) {

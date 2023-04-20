@@ -41,7 +41,7 @@ const getUsersById = (req, res) => {
     database
         .query(` SELECT id, firstname, lastname, email, city, language FROM users where id = ${parseInt(id)}`)
         .then(([users]) => {
-            console.log(users)
+            // console.log(users)
             if (users[0] !== null && users.length > 0) {
                 res.status(200).send(users[0])
             } else {
@@ -55,9 +55,30 @@ const getUsersById = (req, res) => {
           })
 }
 
+const getUserByEmailWithPasswordAndPassToNext = (req, res, next) => {
+    const {email} = req.body
+    database.query(`SELECT * FROM users where email = ?`, email)
+    .then(([user]) => {
+        
+        if (user[0] != null && user.length > 0) {
+            req.user = user[0]
+            // console.log(req.body)
+            
+
+            next()
+        } else {
+            res.status(401).send("Request unauthorized")
+        }
+    })
+    .catch((err) => {
+        console.error(err)
+        res.status(500).send("Error retrieving data from database")
+    })
+}
+
 const postUsers = (req, res) => {
     // const {firstname, lastname, email, city, language} = req.body
-    console.log(req.body)
+    // console.log(req.body)
     database
         .query(
         //     "INSERT INTO users(firstname, lastname, email, city, language) VALUES (?, ?, ? ,?, ?)",
@@ -80,6 +101,10 @@ const postUsers = (req, res) => {
 
 const updateUser = (req, res) => {
     const {id} = req.params
+    // console.log(req.payload.sub)
+    if (parseInt(id) !== req.payload.sub) {
+        return res.sendStatus(403);
+    }
 
     database.query("UPDATE users set? WHERE id = ?", [req.body, id]
     )
@@ -98,6 +123,12 @@ const updateUser = (req, res) => {
 
 const deleteUser = (req, res) => {
     const {id} = req.params
+    // console.log(req.payload.sub)
+    console.log(id)
+
+    if (parseInt(id) !== req.payload.sub) {
+        return res.sendStatus(403);
+    }
     
     database.query("DELETE from users WHERE id = ?", id)
     .then(([user]) => {
@@ -120,4 +151,5 @@ module.exports = {
     postUsers,
     updateUser,
     deleteUser,
+    getUserByEmailWithPasswordAndPassToNext
 };
